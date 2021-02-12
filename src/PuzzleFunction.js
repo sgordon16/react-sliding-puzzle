@@ -3,6 +3,7 @@ import _ from 'lodash';
 import MyTimer from './MyTimer';
 import Tiles from './Tiles';
 const { Heap } = require('heap-js');
+
 //import WebWorker from './WebWorker'
 //const { performance } = require('perf_hooks');
 
@@ -235,20 +236,26 @@ const Puzzle = (props) =>  {
 }
 
   const callWebWorker = (puzzleArray, rows, cols, hole) => {
-    if (window.Worker) {
-      const myWorker = new Worker("./WebWorker.js");
-      //const myWorker = loadWebWorker(WebWorker)
-    
-      myWorker.postMessage({puzzleArray, rows, cols, hole});
-      console.log('Message posted to worker');
-    
-      myWorker.onmessage = function(e) {
-        setSolveMoves(e.data)
-        console.log('Message received from worker');
-      }
-    } else {
-      console.log('Your browser doesn\'t support web workers.')
+    const worker = new Worker();
+    myWorker.postMessage({puzzleArray, rows, cols, hole});
+    worker.onmessage = function(e) {
+      setSolveMoves(e.data)
+      console.log('Message received from worker');
     }
+    // if (window.Worker) {
+    //   const myWorker = new Worker("./WebWorker.js");
+    //   //const myWorker = loadWebWorker(WebWorker)
+    
+    //   myWorker.postMessage({puzzleArray, rows, cols, hole});
+    //   console.log('Message posted to worker');
+    
+    //   myWorker.onmessage = function(e) {
+    //     setSolveMoves(e.data)
+    //     console.log('Message received from worker');
+    //   }
+    // } else {
+    //   console.log('Your browser doesn\'t support web workers.')
+    // }
   }
 
   const handleSolveClick = () => {
