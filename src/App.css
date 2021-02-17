@@ -23,3 +23,97 @@
   color: #61dafb;
 }
 
+.btn {
+  padding: .15em .3em;
+  /* border: solid 1px #1597ff; */
+  border-radius: .5em;
+  display: inline-block;
+  text-align: center;
+  /* background-color: #68d930; */
+  background-color: transparent;
+  width: 6em;
+  height: 3em;
+  margin: .5em;
+  color: white;
+  border: none;
+}
+
+.btn-square {
+  padding: .3em .3em;
+  /* border: solid 1px #1597ff; */
+  border-radius: .5em;
+  display: inline-block;
+  text-align: center;
+  /* background-color: #68d930; */
+  background-color: transparent;
+  width: 3em;
+  height: 3em;
+  margin: .5em;
+  color: white;
+  border: none;
+}
+
+.btn-group {
+  display: inline-flex;
+  overflow: hidden;
+  margin-top: .2em ;
+}
+
+.thumbnail {
+  border: 1px solid #ddd; /* Gray border */
+  border-radius: 4px;  /* Rounded border */
+  padding: 2px;
+  margin: 5px; /* Some padding */
+  width: 40px; /* Set a small width */
+  height: 40px;
+}
+
+.thumbnail:focus {
+  cursor: pointer;
+  border: solid 2px #1597ff;
+  box-shadow: 0 0 0 0px #1597ff, 0 10px 15px -20px rgba(21, 151, 255, 0);
+}
+
+.btn:focus, .btn-square:focus{
+  cursor: pointer;
+  border: solid 2px #1597ff;
+  box-shadow: 0 0 0 0px #1597ff, 0 10px 15px -20px rgba(21, 151, 255, 0);
+  outline: 0;
+  /* color: #fff; */
+}
+
+.btn-square:hover, .btn:hover, .btn-big:hover {
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.2), 0 2px 8px 0 rgba(0, 0, 0, 0.19);
+  /* background-color: #63ce2e; */
+  text-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) ;
+}
+
+.btn-big {
+  display: block;
+  margin: 16px auto;
+  padding: 8px 16px;
+  /* background-color: #68d930; */
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+  border-radius: .5em;
+  color: white;
+  position: absolute;
+  left: 35%;
+  right: 35%;
+  bottom: 10%;
+}
+
+.Typist .Cursor {
+  display: inline-block;
+}
+.Typist .Cursor--blinking {
+  opacity: 1;
+  animation: blink 1s linear infinite;
+}
+@keyframes blink {
+  0% {opacity: 1;}
+  50% {opacity: 0;}
+  100% {opacity: 1;}
+}
+

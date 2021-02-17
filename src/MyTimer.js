@@ -1,35 +1,39 @@
-import { React, useEffect } from "react";
+import { React, useEffect, useRef } from "react";
 import Timer from 'react-compound-timer'
 
-function MyTimer(props) {
+const MyTimer = (props) => {
+    const startTimeFunc = useRef()
+
+    const start = () => startTimeFunc.current.start()
+
+    const stop = () => startTimeFunc.current.stop()
+
+    const reset = () => startTimeFunc.current.reset()
+    
+    if(props.timerState === 'start')
+        start()
+    if(props.timerState === 'stop')
+        stop()
+    if(props.timerState === 'reset')
+        reset()
+
     return (
         <Timer
             startImmediately={false}
-            timeToUpdate={1}
+            timeToUpdate={500}
         >
-            {({ start, resume, pause, stop, reset, timerState }) => {
-                if(timerState !== 'PLAYING' && props.timerState === 'start') {
-                    start()
-                    timerState = 'PLAYING'
-                }
-                if(timerState !== 'STOPPED' && props.timerState === 'stop') {
-                    stop()
-                    timerState = 'STOPPED'
-                }
-                if(props.timerState === 'reset')
-                    reset()
+            {(control) => {
+                startTimeFunc.current = control
                 return (
                 <div>
                     <Timer.Minutes formatValue={value => `${(value < 10 ? `0${value}` : value)}`}/>:
-                    <Timer.Seconds formatValue={value => `${(value < 10 ? `0${value}` : value)}`}/>:
-                    <Timer.Milliseconds formatValue={value => `${(value < 10 ? `00${value}` : (value < 100 ? `0${value}` : value))}`}/>
+                    <Timer.Seconds formatValue={value => `${(value < 10 ? `0${value}` : value)}`}/>
+                    {/* <Timer.Milliseconds formatValue={value => `${(value < 10 ? `00${value}` : (value < 100 ? `0${value}` : value))}`}/> */}
                     {/* <br />
                     <div style={{fontSize: '15px', color: 'grey'}}>{`min. sec. mil.`}</div> */}
-                    {/* <br />
+                    <br />
                     <button onClick={start}>Start</button>
                     <button onClick={stop}>Stop</button>
-                    <button onClick={reset}>Reset</button>
-                    <div>{timerState}</div> */}
                 </div>
             )}}
         </Timer>

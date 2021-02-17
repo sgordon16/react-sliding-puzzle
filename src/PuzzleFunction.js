@@ -2,11 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import _ from 'lodash';
 import MyTimer from './MyTimer';
 import Tiles from './Tiles';
+import Typist from 'react-typist';
+import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
+//import robotImage from 'C:/Users/shlom/Desktop/sliding-puzzle/src/robot.png'
+const robotImage = require('./robot.png');
 const { Heap } = require('heap-js');
+
 
 //import WebWorker from './WebWorker'
 //const { performance } = require('perf_hooks');
-
+//import Worker from './file.worker.js';
+const maxDistances = [20, 56, 108]
 const defaultSize = 4
 const images = ['https://i.imgur.com/QdMWFHZ.jpg', 
     'https://i.picsum.photos/id/1015/6000/4000.jpg?hmac=aHjb0fRa1t14DTIEBcoC12c5rAXOSwnVlaA5ujxPQ0I', 
@@ -30,14 +36,15 @@ const buttonStyle = {
 }
 
 const container = {
-    height: '80%', /* Full-height: remove this if you want "auto" height */
+    //display: 'flex',
+    height: '90%', /* Full-height: remove this if you want "auto" height */
     width: '180px', /* Set the width of the sidebar */
     position: 'fixed', /* Fixed Sidebar (stay in place on scroll) */
     top: 20, /* Stay at the top */
     //left: 10,
     backgroundColor: '#282c34',
     overflowX: 'hidden', /* Disable horizontal scroll */
-    padding: '20px',
+    padding: '8px',
     borderRadius: '20px',
     textAlign: 'center',
     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 
@@ -58,19 +65,7 @@ const statusStyle = {
   backgroundColor: '#282c34'
 }
 
-function getMoves(puzzleArray, rows, cols, hole) {
-    const holeIndex = puzzleArray.indexOf(hole)
-    let moves = []
-    if(canMove(holeIndex, holeIndex - 1, rows, cols)) 
-        moves.push(swap(puzzleArray, holeIndex, holeIndex - 1))
-    if(canMove(holeIndex, holeIndex + 1, rows, cols)) 
-        moves.push(swap(puzzleArray, holeIndex, holeIndex + 1))
-    if(canMove(holeIndex, holeIndex - rows, rows, cols)) 
-        moves.push(swap(puzzleArray, holeIndex, holeIndex - rows))
-    if(canMove(holeIndex, holeIndex + rows, rows, cols))  
-        moves.push(swap(puzzleArray, holeIndex, holeIndex + rows))                                                                                                                                                                   
-    return moves;
-}
+const robotSayings = ['Hello, I am here to help you solve your sliding puzzles👨‍💻', `I'm thinking🤔💭...`, `Hmmm... I think this one is too hard for me😪`, 'I can solve this puzzle in']
 
 function getManhattanDist(puzzleArray, rows, cols) {
     let manhattanDist = 0
@@ -82,48 +77,6 @@ function getManhattanDist(puzzleArray, rows, cols) {
     return manhattanDist;
 }
 
-function aStar (puzzleArray, rows, cols, hole) {
-    let solution = []
-    const AStarComparator = (a, b) => (a.h + a.g) - ((b.h + b.g));
-    let priorityQueue = new Heap(AStarComparator);
-    let map = new Map()
-    priorityQueue.init();
-    let node = {
-        g: 0,
-        h: getManhattanDist(puzzleArray, rows, cols),
-        parent: null,
-        layout: puzzleArray,
-        nextMoves: getMoves(puzzleArray, rows, cols, hole)
-    }
-    priorityQueue.push(node)
-    map.set(node.layout.toString(), node.g)
-
-    while(!isSolved(node.layout)) {
-        node.nextMoves.forEach(e => {
-            let newNode = {
-                g: node.g +1,
-                h: getManhattanDist(e, rows, cols),
-                parent: node,
-                layout: e,
-                nextMoves: getMoves(e, rows, cols, hole)
-            }
-            let str = newNode.layout.toString()
-            if(!map.has(str) || map.get(str) > newNode.g) {
-                priorityQueue.push(newNode)
-                map.set(str, newNode.g)
-            }
-        })
-
-        node = priorityQueue.poll()
-        if(!typeof node === 'object') return
-    }
-    while(node !== null) {
-        solution.unshift(node.layout)
-        node = node.parent
-    }
-    solution.shift()
-    return solution;
-}
 
 // Checks if the puzzle can be solved.
 //
@@ -177,15 +130,13 @@ function shuffle (numbers, hole, rows, cols) {
   return numbers
 }
 
-function shuffleManhattanDistance (puzzleArray, hole, rows, cols, distance) {
-  console.log(distance)
+function shuffleManhattanDistance (puzzleArray, hole, rows, cols, condition) {
   let currDistance = 0
   do {
     puzzleArray = shuffle (puzzleArray, hole, rows, cols)
     currDistance = getManhattanDist(puzzleArray, rows, cols)
   }
-  while (currDistance > distance + 2 || currDistance < distance -2)
-  console.log(currDistance)
+  while (!condition(currDistance))
   return puzzleArray
 }
 
@@ -202,6 +153,17 @@ function swap (puzzleArray, src, dest) {
   return puzzleArray
 }
 
+function arrayEquals (a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 
 const Puzzle = (props) =>  {
 
@@ -212,12 +174,16 @@ const Puzzle = (props) =>  {
   const [hole, setHole] = useState((defaultSize * defaultSize) -1);
   const [level, setLevel] = useState(1);
   const [bgImage, setBgImage] = useState();
-  const [solveMoves, setSolveMoves] = useState([]);
+  const [solveMoves, setSolveMoves] = useState(undefined);
   const [animating, setAnimating] = useState(false)
   const [timerState, setTimerState] = useState('')
+  const [robotMessage, setRobotMessage] = useState(robotSayings[0])
+  const [newPuzzle, setNewPuzzle] = useState(false)
+
+  let workerInstance = new worker();
 
   useEffect(() => {
-    if(animating && solveMoves[moveCount] !== undefined){
+    if(animating && solveMoves && solveMoves[moveCount] !== undefined && !isSolved(puzzleArray)){
       setTimeout(() => {
         handleTileClick(solveMoves[moveCount].indexOf(hole))
       }, 300)
@@ -227,46 +193,71 @@ const Puzzle = (props) =>  {
     if(isSolved(puzzleArray)) {
       setTimerState('stop')
     }
-  }, [solveMoves, puzzleArray]);
-
-  function loadWebWorker(worker) {
-    const code = worker.toString();
-    const blob = new Blob(['('+code+')()']);
-    return new Worker(URL.createObjectURL(blob));
-}
+    if(newPuzzle && !isSolved(puzzleArray) && !animating) {
+      if(rows == 5) 
+        setRobotMessage(robotSayings[2])
+      else
+        callWebWorker(puzzleArray, rows, cols, hole)
+    }
+  }, [puzzleArray, animating]);
 
   const callWebWorker = (puzzleArray, rows, cols, hole) => {
-    const worker = new Worker();
-    myWorker.postMessage({puzzleArray, rows, cols, hole});
-    worker.onmessage = function(e) {
-      setSolveMoves(e.data)
-      console.log('Message received from worker');
+    //workerInstance.terminate()
+    if(workerInstance === undefined)
+      workerInstance = new worker()
+    else {
+      workerInstance.terminate()
+      workerInstance = undefined
+      workerInstance = new worker()
     }
-    // if (window.Worker) {
-    //   const myWorker = new Worker("./WebWorker.js");
-    //   //const myWorker = loadWebWorker(WebWorker)
-    
-    //   myWorker.postMessage({puzzleArray, rows, cols, hole});
-    //   console.log('Message posted to worker');
-    
-    //   myWorker.onmessage = function(e) {
-    //     setSolveMoves(e.data)
-    //     console.log('Message received from worker');
-    //   }
-    // } else {
-    //   console.log('Your browser doesn\'t support web workers.')
-    // }
+    setRobotMessage(robotSayings[1])
+    workerInstance.postMessage({puzzleArray, rows, cols, hole});
+    workerInstance.onmessage = function(e) {
+      if(e.data === 'timedOut') {
+        setRobotMessage(robotSayings[2])
+        workerInstance.terminate()
+      }
+      else if(Array.isArray(e.data)) {
+        setSolveMoves(e.data)
+        setRobotMessage(robotSayings[3] + ` ${e.data.length -1} moves 💪`)
+        workerInstance.terminate()
+        // workerInstance = undefined
+        //setAnimating(true)
+      }
+      console.log(e.data);
+    }
   }
 
   const handleSolveClick = () => {
-    callWebWorker(puzzleArray, rows, cols, hole)
-    // const moves = aStar(puzzleArray, rows, cols, hole)
-    // setSolveMoves(moves)
-    // setAnimating(true)
+    if(solveMoves.length && !isSolved(puzzleArray)) {
+      setMoveCount(0)
+      setTimerState('reset')
+      if(!arrayEquals(solveMoves[0], puzzleArray))
+        setPuzzleArray(solveMoves[0])
+     
+      let clone = _.clone(solveMoves)
+      clone.shift()
+      setSolveMoves(clone)
+      setAnimating(true)
+    }
   }
 
   const handleShuffleClick = () => {
-    setPuzzleArray(shuffleManhattanDistance(puzzleArray, hole, rows, cols, (rows * cols) * level))
+    // if(workerInstance !== undefined) {
+    //   console.log('before terminate: ' + workerInstance)
+    //   workerInstance.terminate()
+    //   console.log('after terminate: ' + workerInstance)
+    // }
+    workerInstance.terminate()
+    setRobotMessage(robotSayings[0])
+    let maxDistance = maxDistances[rows -3];
+    setNewPuzzle(true)
+    setPuzzleArray(shuffleManhattanDistance(puzzleArray, hole, rows, cols, (dist) => {
+      if(level == 1)
+        return dist < (maxDistance / 2)
+      if(level == 2)
+        return dist > (maxDistance / 2)
+    }))
     setSolveMoves([])
     setMoveCount(0)
     setTimerState('reset')
@@ -284,9 +275,29 @@ const Puzzle = (props) =>  {
     setHole((size * size) -1)
   }
 
+  const handleClickBoardSize = (e) => {
+    if(e.target.value != rows) {
+      workerInstance.terminate()
+      setRobotMessage(robotSayings[0])
+      const size = e.target.value
+      setSolveMoves(undefined)
+      setRows(parseInt(size))
+      setCols(parseInt(size))
+      setHole((size * size) -1)
+      setPuzzleArray(_.range(0, size * size))
+    }
+  }
+
+  const handleShuffleLevel = (e) => {
+    const level = e.target.value
+    console.log(level)
+    setLevel(level)
+  }
+
   const handleTileClick = (index) => {
     if(!isSolved(puzzleArray))
       setTimerState('start')
+    setNewPuzzle(false)
     move(index)
   }
 
@@ -302,10 +313,12 @@ const Puzzle = (props) =>  {
   return (
     <>
       <div style={{...container, left: 20}}>
-        <h2 style={{textAlign: 'center'}}>{"Mr. Robot"}</h2>       
-        <div><code>{`I can solve this puzzle in ${solveMoves.length} moves`}</code></div>
+        {/* <h2 style={{textAlign: 'center'}}>{"Mr. Robot"}</h2> */}
+        <img style={{margin: '10px 10px 0 10px'}} src={process.env.PUBLIC_URL + 'robot.png'} width={100} height={150}/>
+        <Typist style={{margin: '0'}} key={robotMessage}><code>{robotMessage}</code></Typist>
+        
         {/* <div>{`I can solve this puzzle in ${time} milliseconds`}</div> */}
-        <button style={buttonStyle}
+        <button className="btn-big"
           onClick={handleSolveClick}
         >
           {"Solve"}
@@ -316,37 +329,32 @@ const Puzzle = (props) =>  {
       </div>
       <Tiles {...{puzzleArray, setPuzzleArray, rows, cols, hole, bgImage}} onTileClick={handleTileClick} width={400} height={400}
       />
-      <button style={buttonStyle} onClick={handleShuffleClick}>
+      <button className="btn" onClick={handleShuffleClick}>
         {"Shuffle"}
       </button>
       <div style={{...statusStyle, right: '25%'}}>{`Moves:  ${moveCount}`}</div>
       <div style={{...container, right: 20}}>
-      <h2 style={{textAlign: 'center'}}>{"Settings"}</h2>  
-        {/* <label for="bg-pic">Choose a picture for the puzzle:</label>
-        <input type="file"
-          id="bg-pic" name="bg-pic"
-          accept="image/png, image/jpeg" onInput={this.handleInputBgPic}>            
-        </input> */}
+      <h3 style={{textAlign: 'center'}}>{"Settings"}</h3>  
+      <h5>{"Choose Background"}</h5>
         {images.map((image, index) => (
-          <img style={thumbnailStyle} src={image} onClick={(e) => {handleInputBgPic(e)}}></img>
+          <img className="thumbnail" src={image} onClick={(e) => {handleInputBgPic(e)}}></img>
         ))}
         <div>
-          <label for="boardSize">Board Size:</label>
+          <h5>{"Board Size"}</h5>
+          <div className="btn-group">
+            <button className="btn-square" value="3" onClick={e => handleClickBoardSize(e, "value")}>3x3</button>
+            <button className="btn-square" value="4" onClick={e => handleClickBoardSize(e, "value")}>4x4</button>
+            <button className="btn-square" value="5" onClick={e => handleClickBoardSize(e, "value")}>5x5</button>
+          </div>
+          {/* <label for="boardSize">Board Size:</label>
           <div>
             <input type="number" id="boardSize" name="boardSize"min="3" max="5" value={rows} onChange={(e) => {handleBoardSize(e)}}></input>
-          </div>            
+          </div>             */}
         </div>
-        <div>
-          <ul style={{listStyle: 'none'}}>
-              <li>
-                  <input type='radio' value='1' name='radio' id='easy'/>
-                  <label for='easy'>Easy</label>
-              </li>
-              <li>
-                  <input type='radio' value='2' name='radio' id='hard'/>
-                  <label for='hard'>Hard</label>
-              </li>
-          </ul>
+        <h5>{"Shuffle Level"}</h5>
+        <div className="btn-group">
+          <button className="btn" value="1" onClick={e => handleShuffleLevel(e, "value")}>Easy</button>
+          <button className="btn" value="2" onClick={e => handleShuffleLevel(e, "value")}>Hard</button>
         </div>
       </div>
     </>
