@@ -69,7 +69,7 @@ const Tile = (props) => {
             <li style={{...style, transform: `translate3d(${translateX}px, ${translateY}px, 0)`}}
             onClick={handleClick}
             >
-            {number === hole ? '' : number + 1}
+            <h3>{number === hole ? '' : number + 1}</h3>
             </li>
         )}
         </Motion>

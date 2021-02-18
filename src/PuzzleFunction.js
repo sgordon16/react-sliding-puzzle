@@ -13,7 +13,7 @@ const { Heap } = require('heap-js');
 //const { performance } = require('perf_hooks');
 //import Worker from './file.worker.js';
 const maxDistances = [20, 56, 108]
-const defaultSize = 4
+const defaultSize = 3
 const images = ['https://i.imgur.com/QdMWFHZ.jpg', 
     'https://i.picsum.photos/id/1015/6000/4000.jpg?hmac=aHjb0fRa1t14DTIEBcoC12c5rAXOSwnVlaA5ujxPQ0I', 
     'https://scx1.b-cdn.net/csz/news/800a/2020/abstractart.jpg']
@@ -186,7 +186,7 @@ const Puzzle = (props) =>  {
     if(animating && solveMoves && solveMoves[moveCount] !== undefined && !isSolved(puzzleArray)){
       setTimeout(() => {
         handleTileClick(solveMoves[moveCount].indexOf(hole))
-      }, 300)
+      }, 350)
     }
     else 
       setAnimating(false)
@@ -314,47 +314,46 @@ const Puzzle = (props) =>  {
     <>
       <div style={{...container, left: 20}}>
         {/* <h2 style={{textAlign: 'center'}}>{"Mr. Robot"}</h2> */}
-        <img style={{margin: '10px 10px 0 10px'}} src={process.env.PUBLIC_URL + 'robot.png'} width={100} height={150}/>
-        <Typist style={{margin: '0'}} key={robotMessage}><code>{robotMessage}</code></Typist>
+        <img style={{margin: '10px'}} src={process.env.PUBLIC_URL + 'robot.png'} width={100} height={150}/>
+        <Typist style={{margin: '10px'}} key={robotMessage}><code>{robotMessage}</code></Typist>
         
         {/* <div>{`I can solve this puzzle in ${time} milliseconds`}</div> */}
-        <button className="btn-big"
+        <button className="button btn-bottom wide"
           onClick={handleSolveClick}
         >
           {"Solve"}
         </button>
       </div>
+      <div>
       <div style={{...statusStyle, left: '25%'}}>
+        <h6>{"Timer"}</h6>
         <MyTimer timerState={timerState}/>
       </div>
       <Tiles {...{puzzleArray, setPuzzleArray, rows, cols, hole, bgImage}} onTileClick={handleTileClick} width={400} height={400}
       />
-      <button className="btn" onClick={handleShuffleClick}>
+      <button className="button wide" onClick={handleShuffleClick}>
         {"Shuffle"}
       </button>
-      <div style={{...statusStyle, right: '25%'}}>{`Moves:  ${moveCount}`}</div>
+      <div style={{...statusStyle, right: '25%'}}><h6>{"Moves"}</h6>{moveCount}</div>
+      </div>
       <div style={{...container, right: 20}}>
       <h3 style={{textAlign: 'center'}}>{"Settings"}</h3>  
-      <h5>{"Choose Background"}</h5>
+      <h5>{"Background"}</h5>
+      <div className="btn-group">
         {images.map((image, index) => (
           <img className="thumbnail" src={image} onClick={(e) => {handleInputBgPic(e)}}></img>
         ))}
-        <div>
+      </div>
           <h5>{"Board Size"}</h5>
           <div className="btn-group">
-            <button className="btn-square" value="3" onClick={e => handleClickBoardSize(e, "value")}>3x3</button>
-            <button className="btn-square" value="4" onClick={e => handleClickBoardSize(e, "value")}>4x4</button>
-            <button className="btn-square" value="5" onClick={e => handleClickBoardSize(e, "value")}>5x5</button>
+            <button className={'option' + (rows == 3 ? ' active' : '')} value="3" onClick={e => handleClickBoardSize(e, "value")}>3x3</button>
+            <button className={'option' + (rows == 4 ? ' active' : '')} value="4" onClick={e => handleClickBoardSize(e, "value")}>4x4</button>
+            <button className={'option' + (rows == 5 ? ' active' : '')} value="5" onClick={e => handleClickBoardSize(e, "value")}>5x5</button>
           </div>
-          {/* <label for="boardSize">Board Size:</label>
-          <div>
-            <input type="number" id="boardSize" name="boardSize"min="3" max="5" value={rows} onChange={(e) => {handleBoardSize(e)}}></input>
-          </div>             */}
-        </div>
         <h5>{"Shuffle Level"}</h5>
         <div className="btn-group">
-          <button className="btn" value="1" onClick={e => handleShuffleLevel(e, "value")}>Easy</button>
-          <button className="btn" value="2" onClick={e => handleShuffleLevel(e, "value")}>Hard</button>
+          <button className={'option' + (level == 1 ? ' active' : '')} value="1" onClick={e => handleShuffleLevel(e, "value")}>Easy</button>
+          <button className={'option' + (level == 2 ? ' active' : '')} value="2" onClick={e => handleShuffleLevel(e, "value")}>Hard</button>
         </div>
       </div>
     </>
