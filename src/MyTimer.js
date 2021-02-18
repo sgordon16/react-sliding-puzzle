@@ -31,9 +31,9 @@ const MyTimer = (props) => {
                     {/* <Timer.Milliseconds formatValue={value => `${(value < 10 ? `00${value}` : (value < 100 ? `0${value}` : value))}`}/> */}
                     {/* <br />
                     <div style={{fontSize: '15px', color: 'grey'}}>{`min. sec. mil.`}</div> */}
-                    <br />
+                    {/* <br />
                     <button onClick={start}>Start</button>
-                    <button onClick={stop}>Stop</button>
+                    <button onClick={stop}>Stop</button> */}
                 </div>
             )}}
         </Timer>

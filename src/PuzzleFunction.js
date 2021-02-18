@@ -325,7 +325,7 @@ const Puzzle = (props) =>  {
         </button>
       </div>
       <div>
-      <div style={{...statusStyle, left: '25%'}}>
+      <div style={{...statusStyle, left: '20%'}}>
         <h6>{"Timer"}</h6>
         <MyTimer timerState={timerState}/>
       </div>
@@ -334,7 +334,7 @@ const Puzzle = (props) =>  {
       <button className="button wide" onClick={handleShuffleClick}>
         {"Shuffle"}
       </button>
-      <div style={{...statusStyle, right: '25%'}}><h6>{"Moves"}</h6>{moveCount}</div>
+      <div style={{...statusStyle, right: '20%'}}><h6>{"Moves"}</h6>{moveCount}</div>
       </div>
       <div style={{...container, right: 20}}>
       <h3 style={{textAlign: 'center'}}>{"Settings"}</h3>  
