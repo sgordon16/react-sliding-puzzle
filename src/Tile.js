@@ -2,7 +2,7 @@ import { React } from "react";
 import { Motion, spring } from 'react-motion';
 
 const tileStyle = {
-    backgroundColor: '#68d930',
+    // backgroundColor: '#68d930',
     //backgroundImage: `url(${image})`,
     //backgroundImage: "url('https://i.imgur.com/QdMWFHZ.jpg')",
     boxShadow: 'inset 0 0 2px 0 black, inset 0 0 5px 5px rgba(0, 0, 0, 0.2)', 

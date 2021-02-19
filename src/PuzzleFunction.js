@@ -4,8 +4,13 @@ import MyTimer from './MyTimer';
 import Tiles from './Tiles';
 import Typist from 'react-typist';
 import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
-//import robotImage from 'C:/Users/shlom/Desktop/sliding-puzzle/src/robot.png'
-const robotImage = require('./robot.png');
+import FileUpload from './FileUpload';
+import robotImage from "./images/robot.png"
+import image2 from "./images/image2.jpg"
+import image3 from "./images/image3.jpg"
+import image4 from "./images/image4.jpg"
+import image5 from "./images/image5.jpg"
+import image6 from "./images/image5.jpg"
 const { Heap } = require('heap-js');
 
 
@@ -14,10 +19,6 @@ const { Heap } = require('heap-js');
 //import Worker from './file.worker.js';
 const maxDistances = [20, 56, 108]
 const defaultSize = 3
-const images = ['https://i.imgur.com/QdMWFHZ.jpg', 
-    'https://i.picsum.photos/id/1015/6000/4000.jpg?hmac=aHjb0fRa1t14DTIEBcoC12c5rAXOSwnVlaA5ujxPQ0I', 
-    'https://scx1.b-cdn.net/csz/news/800a/2020/abstractart.jpg']
-
 
 const thumbnailStyle = {
   border: '1px solid #ddd', /* Gray border */
@@ -38,13 +39,13 @@ const buttonStyle = {
 const container = {
     //display: 'flex',
     height: '90%', /* Full-height: remove this if you want "auto" height */
-    width: '180px', /* Set the width of the sidebar */
+    width: '200px', /* Set the width of the sidebar */
     position: 'fixed', /* Fixed Sidebar (stay in place on scroll) */
     top: 20, /* Stay at the top */
     //left: 10,
     backgroundColor: '#282c34',
     overflowX: 'hidden', /* Disable horizontal scroll */
-    padding: '8px',
+    padding: '10px',
     borderRadius: '20px',
     textAlign: 'center',
     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 
@@ -167,13 +168,15 @@ function arrayEquals (a, b) {
 
 const Puzzle = (props) =>  {
 
+  const images = [image2, image3, image4, image5, image6]
+  let randImage = images[Math.floor(Math.random() * 5)];  
   const [puzzleArray, setPuzzleArray] = useState(_.range(0, defaultSize * defaultSize));
   const [moveCount, setMoveCount] = useState(0);
   const [rows, setRows] = useState(defaultSize);
   const [cols, setCols] = useState(defaultSize);
   const [hole, setHole] = useState((defaultSize * defaultSize) -1);
   const [level, setLevel] = useState(1);
-  const [bgImage, setBgImage] = useState();
+  const [bgImage, setBgImage] = useState(randImage);
   const [solveMoves, setSolveMoves] = useState(undefined);
   const [animating, setAnimating] = useState(false)
   const [timerState, setTimerState] = useState('')
@@ -219,7 +222,7 @@ const Puzzle = (props) =>  {
       }
       else if(Array.isArray(e.data)) {
         setSolveMoves(e.data)
-        setRobotMessage(robotSayings[3] + ` ${e.data.length -1} moves 💪`)
+        setRobotMessage(robotSayings[3] + ` ${e.data.length -1} moves 💪 Click below to watch me solve it 👇`)
         workerInstance.terminate()
         // workerInstance = undefined
         //setAnimating(true)
@@ -263,24 +266,14 @@ const Puzzle = (props) =>  {
     setTimerState('reset')
   }
 
-  const handleInputBgPic = (e) => {
-    setBgImage(e.target.src)
-  }
-
-  const handleBoardSize = (e) => {
-    const size = e.target.value
-    setRows(parseInt(size))
-    setCols(parseInt(size))
-    setPuzzleArray(_.range(0, size * size))
-    setHole((size * size) -1)
-  }
-
   const handleClickBoardSize = (e) => {
     if(e.target.value != rows) {
       workerInstance.terminate()
       setRobotMessage(robotSayings[0])
       const size = e.target.value
       setSolveMoves(undefined)
+      if(images.includes(bgImage))
+        setBgImage(randImage)
       setRows(parseInt(size))
       setCols(parseInt(size))
       setHole((size * size) -1)
@@ -314,7 +307,7 @@ const Puzzle = (props) =>  {
     <>
       <div style={{...container, left: 20}}>
         {/* <h2 style={{textAlign: 'center'}}>{"Mr. Robot"}</h2> */}
-        <img style={{margin: '10px'}} src={process.env.PUBLIC_URL + 'robot.png'} width={100} height={150}/>
+        <img style={{margin: '10px'}} src={robotImage} width={100} height={150}/>
         <Typist style={{margin: '10px'}} key={robotMessage}><code>{robotMessage}</code></Typist>
         
         {/* <div>{`I can solve this puzzle in ${time} milliseconds`}</div> */}
@@ -325,7 +318,7 @@ const Puzzle = (props) =>  {
         </button>
       </div>
       <div>
-      <div style={{...statusStyle, left: '20%'}}>
+      <div style={{...statusStyle, left: '23%'}}>
         <h6>{"Timer"}</h6>
         <MyTimer timerState={timerState}/>
       </div>
@@ -334,16 +327,17 @@ const Puzzle = (props) =>  {
       <button className="button wide" onClick={handleShuffleClick}>
         {"Shuffle"}
       </button>
-      <div style={{...statusStyle, right: '20%'}}><h6>{"Moves"}</h6>{moveCount}</div>
+      <div style={{...statusStyle, right: '23%'}}><h6>{"Moves"}</h6>{moveCount}</div>
       </div>
       <div style={{...container, right: 20}}>
-      <h3 style={{textAlign: 'center'}}>{"Settings"}</h3>  
+      <h3 style={{textAlign: 'center'}}>{"Settings"}</h3> 
       <h5>{"Background"}</h5>
-      <div className="btn-group">
+      <FileUpload setBgImage={setBgImage}/> 
+      {/* <div className="btn-group">
         {images.map((image, index) => (
           <img className="thumbnail" src={image} onClick={(e) => {handleInputBgPic(e)}}></img>
         ))}
-      </div>
+      </div> */}
           <h5>{"Board Size"}</h5>
           <div className="btn-group">
             <button className={'option' + (rows == 3 ? ' active' : '')} value="3" onClick={e => handleClickBoardSize(e, "value")}>3x3</button>

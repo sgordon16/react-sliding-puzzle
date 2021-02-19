@@ -3,7 +3,7 @@ import Tile from './Tile'
 
 const tilesStyle = {
     listStyle: 'none',
-    margin: '0 auto',
+    margin: '20px',
     padding: 2,
     position: 'relative'
 }
