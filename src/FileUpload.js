@@ -18,7 +18,7 @@ class Upload extends React.Component {
   render() {
     return (
       <div className="fileUpload">
-        <input type="file" id="actual-btn" onChange={this.handleChange} hidden/>
+        <input type="file" id="actual-btn" accept="image/png, image/jpeg" onChange={this.handleChange} hidden/>
         <label for="actual-btn"><i class="fas fa-upload"></i></label>
         <span id="file-chosen">{this.state.fileName}</span>
         {/* <img src={this.state.file} style={{width: '50px', height: '50px'}}/> */}
