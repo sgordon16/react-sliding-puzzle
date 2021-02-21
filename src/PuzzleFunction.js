@@ -45,7 +45,7 @@ const container = {
     //left: 10,
     backgroundColor: '#282c34',
     overflowX: 'hidden', /* Disable horizontal scroll */
-    padding: '10px',
+    padding: '15px',
     borderRadius: '20px',
     textAlign: 'center',
     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 
