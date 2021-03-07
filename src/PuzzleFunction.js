@@ -5,13 +5,14 @@ import Tiles from './Tiles';
 import Typist from 'react-typist';
 import worker from 'workerize-loader!./worker'; // eslint-disable-line import/no-webpack-loader-syntax
 import FileUpload from './FileUpload';
-import robotImage from "./images/robot.png"
-import image2 from "./images/image2.jpg"
-import image3 from "./images/image3.jpg"
-import image4 from "./images/image4.jpg"
-import image5 from "./images/image5.jpg"
-import image6 from "./images/image5.jpg"
 const { Heap } = require('heap-js');
+
+const robotImage = "http://d1h92xqhwenkwx.cloudfront.net/robot.png"
+const image2 = "http://d1h92xqhwenkwx.cloudfront.net/cat.jpg"
+const image3 = "http://d1h92xqhwenkwx.cloudfront.net/lion.jpg"
+const image4 = "http://d1h92xqhwenkwx.cloudfront.net/parrot.jpg"
+const image5 = "http://d1h92xqhwenkwx.cloudfront.net/sunflower.jpg"
+const image6 = "http://d1h92xqhwenkwx.cloudfront.net/penguins.jpg"
 
 
 //import WebWorker from './WebWorker'
