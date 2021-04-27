@@ -286,6 +286,7 @@ const Puzzle = (props) =>  {
     const level = e.target.value
     console.log(level)
     setLevel(level)
+    handleShuffleClick();
   }
 
   const handleTileClick = (index) => {
